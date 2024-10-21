@@ -4,7 +4,7 @@
  * @Author: GaoMingze
  * @Date: 2024-10-14 20:04:35
  * @LastEditors: GaoMingze
- * @LastEditTime: 2024-10-14 21:54:23
+ * @LastEditTime: 2024-10-20 21:47:42
  */
 import Center from '@/views/center/Center.vue'
 import Home from '@/views/home/Home.vue'
@@ -15,6 +15,8 @@ import ProductList from '@/views/product-manage/ProductList.vue'
 import UserAdd from '@/views/user-manage/UserAdd.vue'
 import UserList from '@/views/user-manage/UserList.vue'
 import NotFound from '@/views/notfound/NotFound.vue'
+import NewsEdit from '@/views/news-manage/NewsEdit.vue'
+import ProductEdit from '@/views/product-manage/ProductEdit.vue'
 
 const routes = [
     {
@@ -44,12 +46,20 @@ const routes = [
         component: NewsList,
     },
     {
+        path:'/news-manage/editnews/:id',
+        component:NewsEdit
+    },
+    {
         path: '/product-manage/addproduct',
         component: ProductAdd,
     },
     {
         path: '/product-manage/productlist',
         component: ProductList,
+    },
+    {
+        path:'/product-manage/editproduct/:id',
+        component:ProductEdit
     },
     {
         path: '/',

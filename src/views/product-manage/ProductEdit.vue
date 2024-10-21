@@ -1,8 +1,8 @@
 <template>
     <div>
-        <el-page-header icon="" title="产品管理">
+        <el-page-header title="产品管理" @back="handleBack()">
             <template #content>
-                <span class="text-large font-600 mr-3"> 添加产品 </span>
+                <span class="text-large font-600 mr-3"> 编辑产品 </span>
             </template>
         </el-page-header>
         <el-form
@@ -16,40 +16,43 @@
                 <el-input v-model="productForm.name" />
             </el-form-item>
             <el-form-item label="产品概述" prop="introduction">
-                <el-input v-model="productForm.introduction" type="textarea" />
+                <el-input v-model="productForm.introduction" type="textarea"/>
             </el-form-item>
             <el-form-item label="产品详述" prop="detail">
-                <el-input v-model="productForm.detail" type="textarea"></el-input>
+                <el-input v-model="productForm.detail" type="textarea"/>
             </el-form-item>
             <el-form-item label="产品图片" prop="picture">
-                <Upload
-                    :avatar="productForm.picture"
-                    @LuoimoChange="handleChange"
-                />
+                <Upload :avatar="productForm.picture" @LuoimoChange="handleChange" />
             </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="submitForm()">
-                    添加产品
+                    编辑产品
                 </el-button>
             </el-form-item>
         </el-form>
     </div>
 </template>
 <script setup>
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
-import { useStore } from 'vuex'
+import { ref, reactive, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import Upload from '@/components/upload/Upload.vue'
 import upload from '@/util/upload'
+import axios from 'axios'
 const router = useRouter()
-const store = useStore()
+const route = useRoute()
 const productFormRef = ref()
+onMounted(async () => {
+    const res = await axios.get(`/adminapi/product/list/${route.params.id}`)
+    console.log(res.data.data[0])
+    Object.assign(productForm,res.data.data[0])
+    console.log(productForm)
+})
 const productForm = reactive({
     name: '',
     introduction: '',
-    detail: '', //1最新动态2典型案例3通知公告
+    detail:'',
     picture: '',
-    file: null,
+    file: null
 })
 const productFormRules = reactive({
     name: [
@@ -66,17 +69,10 @@ const productFormRules = reactive({
             trigger: 'blur',
         },
     ],
-    detail: [
-        {
-            required: true,
-            message: '请输入产品详述',
-            trigger: 'blur',
-        },
-    ],
     picture: [
         {
             required: true,
-            message: '请上传图片',
+            message: '请上传产品图片',
             trigger: 'blur',
         },
     ],
@@ -89,14 +85,23 @@ const submitForm = () => {
     productFormRef.value.validate(async (valid) => {
         if (valid) {
             console.log(productForm)
-            await upload('/adminapi/product/add', productForm)
-            router.push('/product-manage/productlist')
+            await upload('/adminapi/product/list', productForm)
+
+            router.back()
         }
     })
+}
+const handleBack = () => {
+    router.back()
 }
 </script>
 <style lang="scss" scoped>
 .demo-ruleForm {
     margin-top: 50px;
+}
+::v-deep p{
+    img{
+        width: 100%;
+    }
 }
 </style>

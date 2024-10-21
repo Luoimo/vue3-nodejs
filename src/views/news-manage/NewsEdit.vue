@@ -1,8 +1,8 @@
 <template>
     <div>
-        <el-page-header icon="" title="新闻管理">
+        <el-page-header title="新闻管理" @back="handleBack()">
             <template #content>
-                <span class="text-large font-600 mr-3"> 添加新闻 </span>
+                <span class="text-large font-600 mr-3"> 编辑新闻 </span>
             </template>
         </el-page-header>
         <el-form
@@ -16,14 +16,14 @@
                 <el-input v-model="newsForm.title" />
             </el-form-item>
             <el-form-item label="内容" prop="content">
-                <editor @event="handleEvent" />
+                <editor style="width: 100%;" @event="handleEvent" :content="newsForm.content" v-if="newsForm.content"/>
             </el-form-item>
             <el-form-item label="类型" prop="category">
                 <el-select
                     v-model="newsForm.category"
                     placeholder="请选择类型"
                     size="medium"
-                    style="width: 100%"
+                    style="width: 100%;;"
                 >
                     <el-option
                         v-for="item in options"
@@ -38,22 +38,27 @@
             </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="submitForm()">
-                    添加新闻
+                    编辑新闻
                 </el-button>
             </el-form-item>
         </el-form>
     </div>
 </template>
 <script setup>
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
-import { useStore } from 'vuex'
+import { ref, reactive, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import Editor from '@/components/editor/Editor.vue'
 import Upload from '@/components/upload/Upload.vue'
 import upload from '@/util/upload'
+import axios from 'axios'
 const router = useRouter()
-const store = useStore()
+const route = useRoute()
 const newsFormRef = ref()
+onMounted(async () => {
+    const res = await axios.get(`/adminapi/news/list/${route.params.id}`)
+    console.log(res)
+    Object.assign(newsForm,res.data.data[0])
+})
 const newsForm = reactive({
     title: '',
     content: '',
@@ -61,7 +66,7 @@ const newsForm = reactive({
     cover: '',
     file: null,
     isPublish: 0, //0未发布1已发布
-    author:store.state.userInfo.username
+    author:''
 })
 const newsFormRules = reactive({
     title: [
@@ -119,15 +124,23 @@ const submitForm = () => {
     newsFormRef.value.validate(async (valid) => {
         if (valid) {
             console.log(newsForm)
-            await upload('/adminapi/news/add',newsForm)
+            await upload('/adminapi/news/list', newsForm)
 
-            router.push('/news-manage/newslist')
+            router.back()
         }
     })
+}
+const handleBack = () => {
+    router.back()
 }
 </script>
 <style lang="scss" scoped>
 .demo-ruleForm {
     margin-top: 50px;
+}
+::v-deep p{
+    img{
+        width: 100%;
+    }
 }
 </style>

@@ -4,7 +4,7 @@
  * @Author: GaoMingze
  * @Date: 2024-10-14 19:57:17
  * @LastEditors: GaoMingze
- * @LastEditTime: 2024-10-18 20:06:28
+ * @LastEditTime: 2024-10-21 21:44:09
 -->
 <template>
     <div>
@@ -33,20 +33,30 @@
                     <span>公司产品</span>
                 </div>
             </template>
-            <el-carousel :interval="4000" type="card" height="200px">
-                <el-carousel-item v-for="item in 6" :key="item">
-                    <h3 text="2xl" justify="center">{{ item }}</h3>
+            <el-carousel v-if="loopList.length" :interval="4000" type="card" height="200px">
+                <el-carousel-item v-for="item in loopList" :key="item">
+                    <div
+                            :style="{
+                                backgroundImage: `url(http://localhost:3000${item.picture})`,
+                                backgroundSize:'cover'
+                            }"
+                    >
+                        <h3 text="2xl" justify="center">{{ item.name }}</h3>
+                    </div>
                 </el-carousel-item>
             </el-carousel>
-            <template #footer>Footer content</template>
         </el-card>
     </div>
 </template>
 <script setup>
 import axios from 'axios'
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
 const store = useStore()
+const loopList = ref([])
+onMounted(() => {
+    getData()
+})
 const avatarUrl = computed(() =>
     store.state.userInfo.avatar
         ? 'http://localhost:3000' + store.state.userInfo.avatar
@@ -55,6 +65,10 @@ const avatarUrl = computed(() =>
 const welcomeText = computed(() =>
     new Date().getHours() < 12 ? '离下班还有很久呢' : '马上就下班了，加油💪'
 )
+const getData = async () => {
+    const res = await axios.get(`/adminapi/product/list`)
+    loopList.value = res.data.data
+}
 </script>
 
 <style lang="scss" scoped>
@@ -62,7 +76,7 @@ const welcomeText = computed(() =>
     margin-top: 50px;
 }
 .el-carousel__item h3 {
-    color: #475669;
+    color: white;
     opacity: 0.75;
     line-height: 200px;
     margin: 0;
