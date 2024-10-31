@@ -80,6 +80,7 @@ const productFormRules = reactive({
 const handleChange = (file) => {
     productForm.picture = URL.createObjectURL(file.raw)
     productForm.file = file.raw
+    
 }
 const submitForm = () => {
     productFormRef.value.validate(async (valid) => {
